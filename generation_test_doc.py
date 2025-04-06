@@ -1,10 +1,39 @@
 import os
 import sys
 from PIL import Image
+from concurrent.futures import ThreadPoolExecutor
+import threading
 
 """
 Programm take img from folder rotate it 4 times and 4 times saving in folders with names 0, 90, 180, 270
 """
+# Function for taking rotation and save images
+def process_image_wrapper(file_list_elem):  # modified to accept tuple
+    global counter
+    filename, file_counter = file_list_elem  # take values
+    file_path = os.path.join(path_inp, filename) # create file path
+
+    try:
+        img = Image.open(file_path) # open img
+        img.load() # load img in memory
+        
+        # four iterations for diffrent angles
+        for i, folder in enumerate(path_outputs, 1):
+            angle = 90 * (i - 1)                         # count result angle
+            rotated_img = img.rotate(angle, expand=True) # rotate img
+
+            output_path = os.path.join(folder, f'rotated_{angle}_{file_counter}.jpg') # make output path
+            rotated_img.save(output_path, "JPEG", quality=95)  # changed to JPEG with quality
+            print(f"Saved: {output_path}")
+
+            rotated_img.close() # disable rotated img from memory
+
+        img.close() # disable img from memory
+                
+    except Exception as e: # error handling
+        print(f"\nError with file {filename}: {e}\n")
+
+
 print("Enter path to folder with images\n")
 path_inp = input()
 
@@ -21,32 +50,12 @@ for folder in path_outputs:
     os.makedirs(folder, exist_ok=True)
 
 counter = 1 # counter for numeretion img
+counter_lock = threading.Lock()  # count sinc
 
-# iterate throught input folder
-for filename in os.listdir(path_inp):
+# Create list of (filename, counter) pairs before processing
+with counter_lock:  # protect counter while preparing tasks
+    file_list = [(f, i) for i, f in enumerate(os.listdir(path_inp), counter)] # make list of tuples like (path, number) number starts from counter
+    counter += len(file_list)  # update global counter
 
-    file_path = os.path.join(path_inp, filename) # create file path
-
-    try:
-            img = Image.open(file_path) # open img
-            img.load() # load img in memory
-            
-            # four iterations for diffrent angles
-            for i, folder in enumerate(path_outputs, 1):
-
-                angle = 90 * (i - 1)                         # count result angle
-                rotated_img = img.rotate(angle, expand=True) # rotate img
-
-                output_path = os.path.join(folder, f'rotated_{angle}_{counter}.png') # make output path
-                rotated_img.save(output_path, "PNG")                                 # save img by output path
-                print(f"Saved: {output_path}")
-
-                rotated_img.close() # disable rotated img from memory
-
-            img.close() # disable img from memory
-                    
-    except Exception as e: # error handling
-        print(f"\nError with file {filename}: {e}\n")
-
-    counter += 1 # increasing the counter
-
+with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:  # for every cpu usage
+    executor.map(process_image_wrapper, file_list)  # use map with prepared list

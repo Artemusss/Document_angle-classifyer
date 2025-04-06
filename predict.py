@@ -34,14 +34,14 @@ def test_model(test_dir):
     model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE)) # load best model
     model.eval() # disable layers using for learning
     
-    dataset = DocDataset(test_dir) # load test images
+    data = DocDataset(test_dir) # load test images
     wrong_predictions = [] # list for path to files wrong predicted
     sum_time = 0
     
     with torch.no_grad(): # disable counting gradient
         # iteration throught test data
-        for idx in range(len(dataset)):
-            image, label = dataset[idx]           # take img from datset
+        for idx in range(len(data)):
+            image, label = data[idx]              # take img from datset
             image = image.unsqueeze(0).to(DEVICE) # transform to batch with size 1
 
             start = time.time() # take time start
@@ -53,12 +53,12 @@ def test_model(test_dir):
             # Check if prediction is wrong
             if predicted.item() != label:
                 wrong_predictions.append({          # save information about wrong prediction
-                    'path': dataset.get_path(idx),
+                    'path': data.get_path(idx),
                     'predicted': predicted.item() * 90,
                     'real': label * 90
                 })
     
-    accuracy = 100 * (len(dataset) - len(wrong_predictions)) / len(dataset) # counting accuracy
+    accuracy = 100 * (len(data) - len(wrong_predictions)) / len(data) # counting accuracy
 
     print(f"\nTest accuracy: {accuracy:.7f}%")
     print(f"Time spent: {sum_time}")
@@ -70,3 +70,10 @@ def test_model(test_dir):
 
 # Code for testing
 test_model('Test_images/test')
+
+# Code for single prediction
+#print("Write path to img:")
+ 
+#path = input()
+ 
+#predict(path)
