@@ -8,7 +8,7 @@ import threading
 Programm take img from folder rotate it 4 times and 4 times saving in folders with names 0, 90, 180, 270
 """
 # Function for taking rotation and save images
-def process_image_wrapper(file_list_elem):  # modified to accept tuple
+def rotation_and_save(file_list_elem):  
     global counter
     filename, file_counter = file_list_elem  # take values
     file_path = os.path.join(path_inp, filename) # create file path
@@ -23,7 +23,7 @@ def process_image_wrapper(file_list_elem):  # modified to accept tuple
             rotated_img = img.rotate(angle, expand=True) # rotate img
 
             output_path = os.path.join(folder, f'rotated_{angle}_{file_counter}.jpg') # make output path
-            rotated_img.save(output_path, "JPEG", quality=95)  # changed to JPEG with quality
+            rotated_img.save(output_path, "JPEG")  # save as JPEG 
             print(f"Saved: {output_path}")
 
             rotated_img.close() # disable rotated img from memory
@@ -46,6 +46,7 @@ path_outputs = [] # list for output folders path
 for i in range(4):
     path_outputs.append(input())
 
+# making folders if don't exist
 for folder in path_outputs:
     os.makedirs(folder, exist_ok=True)
 
@@ -58,4 +59,4 @@ with counter_lock:  # protect counter while preparing tasks
     counter += len(file_list)  # update global counter
 
 with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:  # for every cpu usage
-    executor.map(process_image_wrapper, file_list)  # use map with prepared list
+    executor.map(rotation_and_save, file_list)  # use map with prepared list
