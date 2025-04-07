@@ -1,44 +1,50 @@
 import os
-import time
+import sys
 from PIL import Image
+import time
 import pytesseract
 from source.data_model import DocDataset
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-# Function for predition for single document
+# Tesseract prediction for single image
 def predict(image_path):
-    image = Image.open(image_path) # openimg by path
-    
-    start = time.time()
-    osd_data = pytesseract.image_to_osd(image) # tesseract predict information about img
-    end = time.time()
-    
-    angle = int(osd_data.split("Rotate:")[1].split("\n")[0].strip()) # take from predict info only rotation angle
 
+    image = Image.open(image_path).convert('RGB') # open and convert img in RGB
+    
+
+    start = time.time() 
+    output = pytesseract.image_to_osd(image, config='--psm 0') # tesseract predict inf about img
+    end = time.time()
+    angle = int(output.split("Rotate:")[1].split("\n")[0].strip()) # take from predicted inf omly angle
+    
     print(f'Image: {image_path}')
     print(f'Predicted angle: {angle}')
-    print(f'Time spent: {start - end}')
+    print(f'Time spent: {end - start}')
 
-
-# Fuction for testing tesseract on test img
+# Testing tesseract on test data
 def test_model(test_dir):
-    wrong_predictions = []  # 
+    
+    data = DocDataset(test_dir, lambda img: img) # load test images
+    wrong_predictions = [] # list for path to files wrong predicted
     sum_time = 0
-    data = DocDataset(test_dir)
+    
 
+    # iteration throught test data
     for idx in range(len(data)):
-        image, label = data[idx]              # take img from datset
+        image, label = data[idx] # take img from datset
 
-        start = time.time() # take time start
-        pred_inf = pytesseract.image_to_osd(image) # tesseract predict information about img
-        end = time.time() # take time end
+        start = time.time()
+        output = pytesseract.image_to_osd(image, config='--psm 0') # tesseract predict inf about img
+        end = time.time()
         sum_time += end - start # count sum time
-        pred_ang = int(pred_inf.split("Rotate:")[1].split("\n")[0].strip()) # take from predict info only rotation angle
+
+        angle = int(output.split("Rotate:")[1].split("\n")[0].strip()) # take from predicted inf omly angle
 
         # Check if prediction is wrong
-        if pred_ang != (label * 90):
-            wrong_predictions.append({          # save information about wrong prediction
+        if angle != (label * 90):
+            wrong_predictions.append({      # save information about wrong prediction
                 'path': data.get_path(idx),
-                'predicted': pred_ang,
+                'predicted': angle,
                 'real': label * 90
             })
     
@@ -53,7 +59,7 @@ def test_model(test_dir):
         print(f"Predicted: {item['predicted']}, Real: {item['real']}\n")
 
 # Code for testing
-test_model('Test_images/test')
+test_model('Train_and_test_data/test')
 
 # Code for single prediction
 #print("Write path to img:")

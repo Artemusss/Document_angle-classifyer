@@ -1,10 +1,13 @@
-# This is the parameter setting module
 import torch
 from torchvision import transforms
 
+"""
+This is the parameter setting module
+"""
+
 # Data parameters
-DATA_DIR = "Test_images" # directory with folders with images for trening/validation
-BATCH_SIZE = 32          # batch size for lerning/validation
+DATA_DIR = "Train_and_test_data" # directory with folders with images for traning/validation
+BATCH_SIZE = 128          # batch size for lerning/validation
 EPOCHS = 10              # number of training epochs
 
 # Device ans save parameters

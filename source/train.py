@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import random_split, DataLoader
-from config import DATA_DIR, BATCH_SIZE, EPOCHS, DEVICE, MODEL_PATH
-from data_model import DocDataset, OrientationDocCNN
+from source.config import DATA_DIR, BATCH_SIZE, EPOCHS, DEVICE, MODEL_PATH
+from source.data_model import DocDataset, OrientationDocCNN
 
 def train_model():
     # Loading train/valid data
@@ -21,12 +21,13 @@ def train_model():
     optimizer = optim.Adam(model.parameters(), lr=0.001) # use adam becаuse fast end easy to use
     
     # Learning
+    num_batches = train_size // BATCH_SIZE
     best_accuracy = 0.0
     for epoch in range(EPOCHS):
         model.train()
 
         # Iteration throught batch
-        for images, labels in train_loader:
+        for i, (images, labels) in enumerate(train_loader):
             images, labels = images.to(DEVICE), labels.to(DEVICE) # load img and label
 
             optimizer.zero_grad()             # zeroing optimizer
@@ -34,6 +35,8 @@ def train_model():
             loss = criterion(outputs, labels) # count loss
             loss.backward()                   # count and send back grad
             optimizer.step()                  # update params CNN
+
+            print(f"Batch number: {i}/{num_batches}")
         
         # Validation
         model.eval() # disable layers using for learning

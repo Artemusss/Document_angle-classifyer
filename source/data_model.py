@@ -3,7 +3,7 @@ from PIL import Image
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
-from .config import get_transform
+from source.config import get_transform
 import time
 
 class DocDataset(Dataset):
