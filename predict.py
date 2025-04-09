@@ -2,7 +2,8 @@ from PIL import Image
 import torch
 from source.config import DEVICE, MODEL_PATH, get_transform
 from source.data_model import DocDataset, OrientationDocCNN
-import time 
+import time
+from sklearn.metrics import classification_report
 
 # Prediction for single image
 def predict(image_path):
@@ -40,6 +41,8 @@ def test_model(test_dir):
     data = DocDataset(test_dir) # load test images
     wrong_predictions = [] # list for path to files wrong predicted
     sum_time = 0
+    predict_ang = [] # list for predicted label 
+    true_ang = [] # list for true label
     
     with torch.no_grad(): # disable counting gradient
         # iteration throught test data
@@ -53,6 +56,9 @@ def test_model(test_dir):
             end = time.time()
             sum_time += end - start # count sum time
 
+            predict_ang.append(predicted * 90) # save predicted label
+            true_ang.append(label * 90)        # save true label
+
             # Check if prediction is wrong
             if predicted.item() != label:
                 wrong_predictions.append({          # save information about wrong prediction
@@ -60,11 +66,13 @@ def test_model(test_dir):
                     'predicted': predicted.item() * 90,
                     'real': label * 90
                 })
-    
-    accuracy = 100 * (len(data) - len(wrong_predictions)) / len(data) # counting accuracy
 
-    print(f"\nTest accuracy: {accuracy:.7f}%")
+    report = classification_report(true_ang, predict_ang, digits=5)
+    print("\nTable for metrics for each class")
+    print("-------------------------------------")
+    print(report)
     print(f"Time spent: {sum_time}")
+    print("-------------------------------------")
 
     print(f"Wrong predictions ({len(wrong_predictions)}):")
     for item in wrong_predictions:
@@ -72,7 +80,7 @@ def test_model(test_dir):
         print(f"Predicted: {item['predicted']}, Real: {item['real']}\n")
 
 # Code for testing
-test_model('Train_and_test_data/compare_test')
+test_model('Train_and_test_data/quality_test')
 
 # Code for single prediction
 #print("Write path to img:")

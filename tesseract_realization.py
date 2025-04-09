@@ -1,9 +1,8 @@
-import os
-import sys
 from PIL import Image
 import time
 import pytesseract
 from source.data_model import DocDataset
+from sklearn.metrics import classification_report
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 
@@ -28,7 +27,8 @@ def test_model(test_dir):
     data = DocDataset(test_dir, lambda img: img) # load test images
     wrong_predictions = [] # list for path to files wrong predicted
     sum_time = 0
-    
+    predict_ang = [] # list for predicted label 
+    true_ang = []    # list for true label
 
     # iteration throught test data
     for idx in range(len(data)):
@@ -41,6 +41,9 @@ def test_model(test_dir):
 
         angle = int(output.split("Rotate:")[1].split("\n")[0].strip()) # take from predicted inf omly angle
 
+        predict_ang.append(angle)         # save predicted label
+        true_ang.append(label * 90)        # save true label
+
         # Check if prediction is wrong
         if angle != (label * 90):
             wrong_predictions.append({      # save information about wrong prediction
@@ -48,11 +51,13 @@ def test_model(test_dir):
                 'predicted': angle,
                 'real': label * 90
             })
-    
-    accuracy = 100 * (len(data) - len(wrong_predictions)) / len(data) # counting accuracy
 
-    print(f"\nTest accuracy: {accuracy:.7f}%")
+    report = classification_report(true_ang, predict_ang, digits=5)
+    print("\nTable for metrics for each class")
+    print("-------------------------------------")
+    print(report)
     print(f"Time spent: {sum_time}")
+    print("-------------------------------------")
 
     print(f"Wrong predictions ({len(wrong_predictions)}):")
     for item in wrong_predictions:
