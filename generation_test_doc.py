@@ -8,8 +8,7 @@ import threading
 Programm take img from folder rotate it 4 times and 4 times saving in folders with names 0, 90, 180, 270
 """
 # Function for taking rotation and save images
-def rotation_and_save(file_list_elem):  
-    global counter
+def rotation_and_save(file_list_elem):
     filename, file_counter = file_list_elem  # take values
     file_path = os.path.join(path_inp, filename) # create file path
 

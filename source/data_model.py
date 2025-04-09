@@ -67,7 +67,7 @@ class OrientationDocCNN(nn.Module):
         # Feature extraction layers
         self.features = nn.Sequential(
             nn.Conv2d(1, 8, kernel_size=3, padding=1), # save size
-            nn.BatchNorm2d(8), # normalization activations 
+            nn.BatchNorm2d(8),  # normalization activations 
             nn.ReLU(),          # activation
             nn.MaxPool2d(2),    # reduces spatial dimensions by 2
             

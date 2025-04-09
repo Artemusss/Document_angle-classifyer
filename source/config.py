@@ -8,7 +8,7 @@ This is the parameter setting module
 # Data parameters
 DATA_DIR = "Train_and_test_data" # directory with folders with images for traning/validation
 BATCH_SIZE = 128          # batch size for lerning/validation
-EPOCHS = 10              # number of training epochs
+EPOCHS = 10               # number of training epochs
 
 # Device ans save parameters
 DEVICE = torch.device('cpu')              # selected device

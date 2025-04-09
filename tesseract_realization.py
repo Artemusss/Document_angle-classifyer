@@ -6,6 +6,7 @@ import pytesseract
 from source.data_model import DocDataset
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
+
 # Tesseract prediction for single image
 def predict(image_path):
 
@@ -59,7 +60,7 @@ def test_model(test_dir):
         print(f"Predicted: {item['predicted']}, Real: {item['real']}\n")
 
 # Code for testing
-test_model('Train_and_test_data/test')
+test_model('Train_and_test_data/compare_test')
 
 # Code for single prediction
 #print("Write path to img:")
